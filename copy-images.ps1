@@ -1,0 +1,10 @@
+$src = "C:\Users\cktha\.gemini\antigravity\brain\53e3f925-1cf2-4715-b388-a31d50a2cb6d"
+$dest = "c:\Users\cktha\OneDrive\Desktop\free po\public\images"
+if (!(Test-Path $dest)) { New-Item -ItemType Directory -Path $dest -Force }
+Copy-Item "$src\portfolio_preview_1778901911133.png" "$dest\portfolio.png"
+Copy-Item "$src\landing_page_preview_1778901928502.png" "$dest\landing-page.png"
+Copy-Item "$src\business_preview_1778901945979.png" "$dest\business.png"
+Copy-Item "$src\interior_preview_1778901972630.png" "$dest\interior.png"
+Copy-Item "$src\ecommerce_preview_1778902006403.png" "$dest\ecommerce.png"
+Copy-Item "$src\gym_preview_1778902006403.png" "$dest\gym.png"
+Write-Host "All images copied!"
