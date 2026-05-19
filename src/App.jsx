@@ -1,8 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
+import { BrowserRouter, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
 import './styles.css';
+import FreeSourceCodePage from './pages/FreeSourceCodePage.jsx';
+import WhatsAppFloat from './components/WhatsAppFloat.jsx';
+import {
+  ScrollingTrustBar,
+  PricingSection,
+  PortfolioSection,
+  TestimonialsSection,
+} from './components/HomeSections.jsx';
 import {
   WHATSAPP, NAV_LINKS, SERVICE_PILLS, APPROACH_STEPS,
-  FEATURES, TRUST_BAR, STATS, FEATURED_SOURCE_PROJECT
+  FEATURES, TRUST_BAR, STATS,
 } from './data.js';
 
 /* ── Hooks ── */
@@ -56,10 +65,10 @@ function PixelP({ size = 36 }) {
 function Logo({ size = 'default' }) {
   const s = size === 'small' ? 28 : 36;
   return (
-    <a href="#home" className={`nav-logo${size === 'small' ? ' nav-logo-sm' : ''}`}>
+    <Link to="/" className={`nav-logo${size === 'small' ? ' nav-logo-sm' : ''}`}>
       <PixelP size={s} />
       <span className="nav-logo-text">PIXELNEST</span>
-    </a>
+    </Link>
   );
 }
 
@@ -67,20 +76,41 @@ function Logo({ size = 'default' }) {
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+  const homeHash = (id) => (location.pathname === '/' ? `#${id}` : `/#${id}`);
+
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', h, { passive: true });
     return () => window.removeEventListener('scroll', h);
   }, []);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
   return (
     <nav className={`navbar${scrolled ? ' scrolled' : ''}`} id="navbar">
       <Logo />
       <ul className={`nav-links${menuOpen ? ' open' : ''}`}>
-        {NAV_LINKS.map(l => (
-          <li key={l}><a href={`#${l.toLowerCase()}`} onClick={() => setMenuOpen(false)}>{l}</a></li>
-        ))}
+        {NAV_LINKS.map((l) => {
+          const id = l === 'Home' ? 'home' : l.toLowerCase();
+          const hashId = l === 'Pricing' ? 'pricing' : id;
+          return (
+            <li key={l}><a href={homeHash(hashId)} onClick={() => setMenuOpen(false)}>{l}</a></li>
+          );
+        })}
+        <li>
+          <NavLink
+            to="/free-source-code"
+            className={({ isActive }) => (isActive ? 'nav-fsc-active' : '')}
+            onClick={() => setMenuOpen(false)}
+          >
+            Free Source Code
+          </NavLink>
+        </li>
       </ul>
-      <a href="#contact" className={`nav-cta${menuOpen ? '' : ''}`} onClick={() => setMenuOpen(false)}>Contact Us</a>
+      <a href={homeHash('contact')} className="nav-cta" onClick={() => setMenuOpen(false)}>Contact Us</a>
       <button className="nav-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
         <span /><span /><span />
       </button>
@@ -286,7 +316,7 @@ function ApproachSection() {
 function FeaturesSection() {
   const [ref, vis] = useInView();
   return (
-    <section className={`section section-center section-hidden${vis ? ' section-visible' : ''}`} ref={ref} id="work">
+    <section className={`section section-center section-hidden${vis ? ' section-visible' : ''}`} ref={ref} id="benefits">
       <h2>What <span className="accent">You Get</span></h2>
       <p className="section-sub">Websites designed to create impact and drive real results.</p>
       <div className="features-grid">
@@ -337,130 +367,16 @@ function CTASection() {
   );
 }
 
-/* ── Free Source Code Section ── */
-function FreeSourceCodeSection() {
+/* ── Free Source Code Promo ── */
+function FreeSourceCodePromo() {
   const [ref, vis] = useInView({ threshold: 0.08 });
-  const p = FEATURED_SOURCE_PROJECT;
   return (
-    <section className={`fsc-section section-hidden${vis ? ' section-visible' : ''}`} ref={ref} id="free-source-codes">
+    <section className={`fsc-promo section-hidden${vis ? ' section-visible' : ''}`} ref={ref} id="free-source-codes">
       <div className="fsc-glow" />
-      <div className="fsc-glow fsc-glow-2" />
-
-      {/* Section Header */}
-      <div className="fsc-header">
+      <div className="fsc-promo-inner">
         <h2>Free Source <span className="accent">Code</span></h2>
-        <p className="fsc-sub">Download high-quality source code for your next project.</p>
-      </div>
-
-      {/* Featured Card */}
-      <div className="fsc-featured-wrap">
-        <div className="fsc-featured-card">
-          {/* Shimmer border effect */}
-          <div className="fsc-card-shine" />
-
-          {/* Preview area */}
-          <div className="fsc-featured-preview">
-            {/* Glowing orbs */}
-            <div className="fsc-orb fsc-orb-1" />
-            <div className="fsc-orb fsc-orb-2" />
-            <div className="fsc-orb fsc-orb-3" />
-            <div className="fsc-orb fsc-orb-4" />
-            <div className="fsc-orb fsc-orb-5" />
-
-            <svg viewBox="0 0 600 280" fill="none" className="fsc-feat-svg">
-              {/* Rich gradient background */}
-              <rect width="600" height="280" fill="url(#feat-bg-grad)" />
-
-              {/* Ambient glow orbs */}
-              <circle cx="480" cy="40" r="130" fill="url(#feat-glow-1)" opacity=".35" />
-              <circle cx="80" cy="240" r="100" fill="url(#feat-glow-2)" opacity=".25" />
-              <circle cx="300" cy="20" r="180" fill="url(#feat-glow-3)" opacity=".12" />
-              <circle cx="540" cy="200" r="70" fill="url(#feat-glow-4)" opacity=".15" />
-
-              {/* Subtle star dots in SVG */}
-              <circle cx="50" cy="18" r="1.5" fill="#a78bfa" opacity=".6" />
-              <circle cx="150" cy="8" r="1" fill="#c4b5fd" opacity=".5" />
-              <circle cx="280" cy="14" r="1.5" fill="#7c3aed" opacity=".4" />
-              <circle cx="420" cy="22" r="1" fill="#a78bfa" opacity=".5" />
-              <circle cx="550" cy="12" r="1.5" fill="#c4b5fd" opacity=".3" />
-              <circle cx="180" cy="25" r="1" fill="#8b5cf6" opacity=".4" />
-              <circle cx="350" cy="8" r="1.2" fill="#a78bfa" opacity=".35" />
-              <circle cx="500" cy="30" r="1" fill="#7c3aed" opacity=".45" />
-
-              {/* Laptop */}
-              <rect x="60" y="40" width="280" height="180" rx="10" fill="#111" stroke="#222" strokeWidth="1.5" />
-              <rect x="72" y="52" width="256" height="155" rx="4" fill="#0a0a0a" />
-              {/* Screen nav */}
-              <rect x="84" y="62" width="40" height="6" rx="3" fill="#7C3AED" />
-              <rect x="200" y="62" width="24" height="6" rx="3" fill="#333" />
-              <rect x="230" y="62" width="24" height="6" rx="3" fill="#333" />
-              <rect x="260" y="62" width="24" height="6" rx="3" fill="#333" />
-              {/* Hero line */}
-              <rect x="84" y="84" width="160" height="8" rx="4" fill="#fff" opacity=".85" />
-              <rect x="84" y="100" width="120" height="5" rx="2.5" fill="#94A3B8" opacity=".35" />
-              <rect x="84" y="112" width="140" height="5" rx="2.5" fill="#94A3B8" opacity=".2" />
-              {/* CTA button */}
-              <rect x="84" y="128" width="72" height="20" rx="10" fill="#7C3AED" opacity=".8" />
-              <rect x="164" y="128" width="72" height="20" rx="10" fill="none" stroke="#7C3AED" strokeWidth="1" opacity=".4" />
-              {/* Cards */}
-              <rect x="84" y="162" width="72" height="36" rx="6" fill="#1a1a24" stroke="#252530" strokeWidth="1" />
-              <rect x="164" y="162" width="72" height="36" rx="6" fill="#1a1a24" stroke="#252530" strokeWidth="1" />
-              <rect x="244" y="162" width="72" height="36" rx="6" fill="#1a1a24" stroke="#252530" strokeWidth="1" />
-              {/* Laptop base */}
-              <path d="M40 220 L60 220 Q64 216 68 216 L332 216 Q336 216 340 220 L360 220 Q356 228 340 230 L60 230 Q44 228 40 220Z" fill="#111" stroke="#222" strokeWidth="1" />
-
-              {/* Phone */}
-              <rect x="400" y="55" width="90" height="165" rx="12" fill="#111" stroke="#222" strokeWidth="1.5" />
-              <rect x="408" y="68" width="74" height="138" rx="4" fill="#0a0a0a" />
-              <rect x="430" y="58" width="30" height="4" rx="2" fill="#222" />
-              {/* Phone content */}
-              <rect x="416" y="80" width="36" height="5" rx="2.5" fill="#7C3AED" />
-              <rect x="416" y="92" width="56" height="4" rx="2" fill="#fff" opacity=".6" />
-              <rect x="416" y="102" width="46" height="3" rx="1.5" fill="#94A3B8" opacity=".3" />
-              <rect x="416" y="116" width="40" height="14" rx="7" fill="#7C3AED" opacity=".7" />
-              <rect x="416" y="140" width="28" height="24" rx="4" fill="#1a1a24" stroke="#252530" strokeWidth="1" />
-              <rect x="450" y="140" width="28" height="24" rx="4" fill="#1a1a24" stroke="#252530" strokeWidth="1" />
-              <rect x="416" y="170" width="28" height="24" rx="4" fill="#1a1a24" stroke="#252530" strokeWidth="1" />
-              <rect x="450" y="170" width="28" height="24" rx="4" fill="#1a1a24" stroke="#252530" strokeWidth="1" />
-
-              {/* Floating decoration */}
-              <rect x="510" y="100" width="50" height="50" rx="8" fill="#7C3AED" opacity=".08" />
-              <rect x="520" y="170" width="30" height="30" rx="6" fill="#8B5CF6" opacity=".06" />
-
-              <defs>
-                <linearGradient id="feat-bg-grad" x1="0" y1="0" x2="600" y2="280" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#0d0015" />
-                  <stop offset="35%" stopColor="#1a0033" />
-                  <stop offset="65%" stopColor="#150028" />
-                  <stop offset="100%" stopColor="#0a0a12" />
-                </linearGradient>
-                <radialGradient id="feat-glow-1"><stop stopColor="#7C3AED" /><stop offset="1" stopColor="transparent" /></radialGradient>
-                <radialGradient id="feat-glow-2"><stop stopColor="#8B5CF6" /><stop offset="1" stopColor="transparent" /></radialGradient>
-                <radialGradient id="feat-glow-3"><stop stopColor="#2d0057" /><stop offset="1" stopColor="transparent" /></radialGradient>
-                <radialGradient id="feat-glow-4"><stop stopColor="#7C3AED" /><stop offset="1" stopColor="transparent" /></radialGradient>
-              </defs>
-            </svg>
-
-            {/* New badge */}
-            <span className="fsc-new-badge">✨ New</span>
-          </div>
-
-          {/* Card Content */}
-          <div className="fsc-featured-body">
-            <span className="fsc-feat-tag">{p.tag}</span>
-            <h3 className="fsc-feat-title">{p.title}</h3>
-            <p className="fsc-feat-desc">{p.description}</p>
-
-            <div className="fsc-feat-btns">
-              <a href={p.previewUrl} target="_blank" rel="noopener noreferrer" className="fsc-btn-preview">
-                <span className="fsc-btn-icon">👁</span> Live Preview
-              </a>
-              <a href={p.downloadUrl} target="_blank" rel="noopener noreferrer" className="fsc-btn-download">
-                <span className="fsc-btn-icon">⬇</span> Download Source Code
-              </a>
-            </div>
-          </div>
-        </div>
+        <p className="fsc-sub">Browse free templates with live previews, tech stacks, and instant downloads — built by PIXELNEST.</p>
+        <Link to="/free-source-code" className="btn-primary">Browse Free Source Code →</Link>
       </div>
     </section>
   );
@@ -625,6 +541,17 @@ function ContactSection() {
           </button>
         </form>
 
+        <div className="ct-meta">
+          <p>We respond within 2-4 hours ⚡</p>
+          <p>Based in Mathura, Working Worldwide 🌍</p>
+          <p className="ct-wa-alt">
+            Prefer WhatsApp?{' '}
+            <a href={WHATSAPP} target="_blank" rel="noopener noreferrer">
+              Click here to chat directly →
+            </a>
+          </p>
+        </div>
+
         <div className="ct-pills">
 
           {/* Instagram pill */}
@@ -660,21 +587,51 @@ function Footer() {
   );
 }
 
-/* ── Main App ── */
-export default function App() {
+function ScrollToHash() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (hash) {
+      const id = hash.replace('#', '');
+      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 80);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, hash]);
+  return null;
+}
+
+function HomePage() {
   return (
     <>
       <Navbar />
       <Hero />
       <PillsBar />
+      <ScrollingTrustBar />
       <StatsBar />
       <BeforeAfter />
       <ApproachSection />
+      <PricingSection />
       <FeaturesSection />
+      <PortfolioSection />
+      <TestimonialsSection />
       <CTASection />
-      <FreeSourceCodeSection />
+      <FreeSourceCodePromo />
       <ContactSection />
       <Footer />
     </>
+  );
+}
+
+/* ── Main App ── */
+export default function App() {
+  return (
+    <BrowserRouter>
+      <ScrollToHash />
+      <WhatsAppFloat />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/free-source-code" element={<FreeSourceCodePage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
