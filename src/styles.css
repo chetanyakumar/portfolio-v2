@@ -782,6 +782,125 @@ a.ct-pill-link:hover { border-color: rgba(124,58,237,.5); color: var(--text); }
 .fsc-modal-submit.loading { opacity: .7; pointer-events: none; }
 .fsc-modal-note { font-size: .75rem; color: var(--text-secondary); margin-top: 14px; text-align: center; }
 
+/* Review modal */
+.fsc-review-backdrop { z-index: 210; }
+.fsc-review-modal { max-width: 460px; }
+.fsc-review-eyebrow {
+  display: inline-block;
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--accent-light);
+  margin-bottom: 10px;
+}
+.fsc-review-stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.fsc-star {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  line-height: 1;
+  color: rgba(139, 138, 170, .35);
+  padding: 4px;
+  transition: transform .2s, color .2s;
+}
+.fsc-star:hover,
+.fsc-star.active {
+  color: #fbbf24;
+  transform: scale(1.1);
+}
+.fsc-review-modal .fsc-modal-field textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: #fff;
+  font-size: .9rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 88px;
+  outline: none;
+}
+.fsc-review-modal .fsc-modal-field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, .12);
+}
+.fsc-review-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+.fsc-review-btn-primary {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 50px;
+  background: var(--accent);
+  color: #fff;
+  font-size: .95rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .3s;
+}
+.fsc-review-btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: 0 0 28px var(--accent-glow);
+}
+.fsc-review-btn-primary.loading { opacity: .7; pointer-events: none; }
+.fsc-review-btn-skip {
+  width: 100%;
+  padding: 12px;
+  border-radius: 50px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: .88rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .25s;
+}
+.fsc-review-btn-skip:hover {
+  border-color: rgba(124, 58, 237, .4);
+  color: var(--text);
+  background: rgba(124, 58, 237, .06);
+}
+.fsc-review-success {
+  text-align: center;
+  padding: 24px 8px 16px;
+}
+.fsc-review-success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(37, 211, 102, .12);
+  border: 1px solid rgba(37, 211, 102, .35);
+  color: #25d366;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.fsc-review-success h3 {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.fsc-review-success p {
+  font-size: .9rem;
+  color: var(--text-secondary);
+}
+
 /* Home promo strip */
 .fsc-promo {
   position: relative;
@@ -1137,6 +1256,8 @@ a.ct-pill-link:hover { border-color: rgba(124,58,237,.5); color: var(--text); }
   .fsc-promo { padding: 60px 20px; }
   .fsc-promo-inner { padding: 40px 24px; }
   .fsc-page-cta { padding: 32px 20px; }
+  .fsc-review-modal { padding: 28px 20px; }
+  .fsc-star { font-size: 1.75rem; }
   .pricing-grid { grid-template-columns: 1fr; }
   .portfolio-grid { grid-template-columns: 1fr; }
   .testimonials-grid { grid-template-columns: 1fr; }

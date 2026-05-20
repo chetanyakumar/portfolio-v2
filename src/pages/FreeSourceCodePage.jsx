@@ -8,6 +8,7 @@ import {
   SOURCE_DIFFICULTIES,
   SOURCE_TECH_FILTERS,
   LEAD_STORAGE_KEY,
+  REVIEW_STORAGE_KEY,
 } from '../data.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -122,6 +123,145 @@ function SourceCard({ project, onDownload, onPreview }) {
   );
 }
 
+
+function saveReview({ project, rating, comment }) {
+  try {
+    const raw = localStorage.getItem(REVIEW_STORAGE_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    list.push({
+      projectId: project.id,
+      projectTitle: project.title,
+      rating: rating || 0,
+      comment: comment.trim(),
+      at: Date.now(),
+    });
+    localStorage.setItem(REVIEW_STORAGE_KEY, JSON.stringify(list.slice(-50)));
+  } catch {
+    /* ignore storage errors */
+  }
+}
+
+async function sendReviewEmail({ project, rating, comment, lead }) {
+  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+  if (!serviceId || !templateId || !publicKey) return;
+
+  const emailjs = (await import('@emailjs/browser')).default;
+  await emailjs.send(
+    serviceId,
+    templateId,
+    {
+      name: lead?.name || 'Anonymous',
+      email: lead?.email || 'noreply@pixelnest.local',
+      business: 'Free Source Code Review',
+      message: `Review for "${project.title}" (${project.id}): ${rating}★${comment ? ` — ${comment}` : ''}`,
+    },
+    { publicKey },
+  );
+}
+
+function getLeadInfo() {
+  try {
+    const raw = localStorage.getItem(LEAD_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function ReviewModal({ project, onSkip, onComplete }) {
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [comment, setComment] = useState('');
+  const [phase, setPhase] = useState('form');
+  const [loading, setLoading] = useState(false);
+  const display = hover || rating;
+
+  const handleSkip = () => onSkip(project);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const payload = { project, rating, comment };
+    saveReview(payload);
+    try {
+      await sendReviewEmail({ ...payload, lead: getLeadInfo() });
+    } catch (err) {
+      console.error(err);
+    }
+    setPhase('success');
+    setLoading(false);
+    setTimeout(() => onComplete(project), 1400);
+  };
+
+  return (
+    <div className="fsc-modal-backdrop fsc-review-backdrop" onClick={handleSkip} role="presentation">
+      <div
+        className="fsc-modal fsc-review-modal"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-labelledby="review-modal-title"
+      >
+        <button type="button" className="fsc-modal-close" onClick={handleSkip} aria-label="Close">×</button>
+        {phase === 'success' ? (
+          <div className="fsc-review-success">
+            <span className="fsc-review-success-icon" aria-hidden>✓</span>
+            <h3>Thank you!</h3>
+            <p>Your review was saved. Starting your download…</p>
+          </div>
+        ) : (
+          <>
+            <p className="fsc-review-eyebrow">Optional · helps us improve</p>
+            <h3 id="review-modal-title">Quick review before download</h3>
+            <p className="fsc-modal-sub">
+              How was <strong>{project.title}</strong>? Rate it if you&apos;d like — then grab your files.
+            </p>
+            <form onSubmit={handleSubmit} noValidate>
+              <div className="fsc-review-stars" role="group" aria-label="Star rating">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={`fsc-star${display >= n ? ' active' : ''}`}
+                    onClick={() => setRating(n)}
+                    onMouseEnter={() => setHover(n)}
+                    onMouseLeave={() => setHover(0)}
+                    aria-label={`${n} star${n > 1 ? 's' : ''}`}
+                    aria-pressed={rating === n}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+              <div className="fsc-modal-field">
+                <textarea
+                  rows="3"
+                  placeholder="Short feedback (optional)"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  maxLength={400}
+                />
+              </div>
+              <div className="fsc-review-actions">
+                <button
+                  type="submit"
+                  className={`fsc-review-btn-primary${loading ? ' loading' : ''}`}
+                  disabled={loading}
+                >
+                  {loading ? 'Saving…' : 'Leave Review & Download'}
+                </button>
+                <button type="button" className="fsc-review-btn-skip" onClick={handleSkip}>
+                  Skip & Download
+                </button>
+              </div>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function LeadModal({ project, onClose, onSuccess }) {
   const [form, setForm] = useState({ name: '', email: '' });
@@ -238,6 +378,7 @@ export default function FreeSourceCodePage() {
   const [difficulty, setDifficulty] = useState('All');
   const [tech, setTech] = useState('All');
   const [leadProject, setLeadProject] = useState(null);
+  const [reviewProject, setReviewProject] = useState(null);
   const { toasts, addToast, removeToast } = useToast();
 
   const filtered = useMemo(() => {
@@ -254,19 +395,23 @@ export default function FreeSourceCodePage() {
     });
   }, [search, difficulty, tech]);
 
+  const completeDownload = (project) => {
+    setReviewProject(null);
+    triggerDownload(project);
+    addToast(`Downloading ${project.title}`, 'success');
+  };
+
   const handleDownload = (project) => {
-    if (hasLeadCapture()) {
-      triggerDownload(project);
-      addToast(`Downloading ${project.title}`, 'success');
+    if (!hasLeadCapture()) {
+      setLeadProject(project);
       return;
     }
-    setLeadProject(project);
+    setReviewProject(project);
   };
 
   const handleLeadSuccess = (project) => {
     setLeadProject(null);
-    triggerDownload(project);
-    addToast('Thanks! Your download is starting.', 'success');
+    setReviewProject(project);
   };
 
   const handlePreview = (project) => {
@@ -366,6 +511,13 @@ export default function FreeSourceCodePage() {
           project={leadProject}
           onClose={() => setLeadProject(null)}
           onSuccess={handleLeadSuccess}
+        />
+      )}
+      {reviewProject && (
+        <ReviewModal
+          project={reviewProject}
+          onSkip={completeDownload}
+          onComplete={completeDownload}
         />
       )}
     </>

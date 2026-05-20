@@ -226,3 +226,4 @@ export const SOURCE_PROJECTS = [
 ];
 
 export const LEAD_STORAGE_KEY = 'pixelnest_download_lead';
+export const REVIEW_STORAGE_KEY = 'pixelnest_fsc_reviews';
