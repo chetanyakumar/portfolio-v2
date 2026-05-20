@@ -148,12 +148,24 @@ export const TESTIMONIALS = [
 
 export const SOURCE_DIFFICULTIES = ['All', 'Beginner', 'Intermediate', 'Advanced'];
 
-export const SOURCE_TECH_FILTERS = ['All', 'HTML/CSS', 'JavaScript', 'React', 'Tailwind'];
+export const SOURCE_TECH_FILTERS = ['All', 'HTML/CSS', 'JavaScript', 'React', 'Tailwind', 'Framer Motion'];
+
+export const FEATURED_SOURCE_ID = 'proposal-page';
+export const SECONDARY_FEATURED_ID = 'modern-animated-portfolio';
+
+export const SPOTLIGHT_SOURCE_IDS = [FEATURED_SOURCE_ID, SECONDARY_FEATURED_ID];
+
+export function isSourceProjectAvailable(project) {
+  const hasPreview = project.previewUrl && project.previewUrl !== '#';
+  const hasDownload = project.downloadUrl && project.downloadUrl !== '#';
+  return hasPreview && hasDownload;
+}
 
 export const SOURCE_PROJECTS = [
   {
     id: 'proposal-page',
-    title: 'Will You Be My Gurl? 💌',
+    title: 'Will You Be My Girl? 💌',
+    featured: true,
     tag: 'Interactive',
     description: 'A cute interactive proposal page with envelope reveal animation, GIFs, and Yes/No interaction.',
     techStack: ['HTML/CSS', 'JavaScript'],
@@ -162,6 +174,7 @@ export const SOURCE_PROJECTS = [
     downloadUrl: 'https://drive.google.com/file/d/1F8nsYlLdFfQzyonPXR2-5hfmW7w8eiaF/view?usp=drive_link',
     previewTheme: 'romantic',
     isNew: true,
+    available: true,
   },
   {
     id: 'agency-landing',
@@ -174,18 +187,21 @@ export const SOURCE_PROJECTS = [
     downloadUrl: '#',
     previewTheme: 'agency',
     isNew: false,
+    available: false,
   },
   {
-    id: 'portfolio-react',
-    title: 'Developer Portfolio',
-    tag: 'Portfolio',
-    description: 'Minimal developer portfolio with project cards, skills section, and smooth scroll animations.',
-    techStack: ['React', 'Tailwind'],
+    id: 'modern-animated-portfolio',
+    title: "I'm So Sorry",
+    tag: 'Apology Page',
+    description: 'A cute interactive apology-style web page with emotional animations, romantic UI and aesthetic kitty visuals.',
+    techStack: ['React', 'Tailwind CSS', 'Framer Motion'],
     difficulty: 'Intermediate',
-    previewUrl: '#',
-    downloadUrl: '#',
-    previewTheme: 'portfolio',
-    isNew: false,
+    previewUrl: 'https://preeminent-pothos-5ea1fe.netlify.app',
+    downloadUrl: 'https://drive.google.com/file/d/1hZ0R5vpLHgn-B4NVYtY0rEVOfRhnzcW5/view?usp=sharing',
+    previewTheme: 'romantic',
+    isNew: true,
+    available: true,
+    spotlight: true,
   },
   {
     id: 'saas-dashboard',
@@ -198,6 +214,7 @@ export const SOURCE_PROJECTS = [
     downloadUrl: '#',
     previewTheme: 'dashboard',
     isNew: true,
+    available: false,
   },
   {
     id: 'restaurant-menu',
@@ -210,6 +227,7 @@ export const SOURCE_PROJECTS = [
     downloadUrl: '#',
     previewTheme: 'restaurant',
     isNew: false,
+    available: false,
   },
   {
     id: 'startup-landing',
@@ -222,6 +240,7 @@ export const SOURCE_PROJECTS = [
     downloadUrl: '#',
     previewTheme: 'startup',
     isNew: false,
+    available: false,
   },
 ];
 

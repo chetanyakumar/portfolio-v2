@@ -7,13 +7,22 @@ import {
   SOURCE_PROJECTS,
   SOURCE_DIFFICULTIES,
   SOURCE_TECH_FILTERS,
+  FEATURED_SOURCE_ID,
+  SECONDARY_FEATURED_ID,
+  SPOTLIGHT_SOURCE_IDS,
+  isSourceProjectAvailable,
   LEAD_STORAGE_KEY,
   REVIEW_STORAGE_KEY,
 } from '../data.js';
+import { getSourceThumbnail } from '../assets/sourceThumbnails.js';
+
+function projectIsLive(project) {
+  return project.available === true || isSourceProjectAvailable(project);
+}
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function CardPreview({ theme }) {
+function CardPreview({ theme, className = 'fsc-card-preview-svg' }) {
   const themes = {
     romantic: (
       <>
@@ -38,12 +47,15 @@ function CardPreview({ theme }) {
     ),
     portfolio: (
       <>
-        <rect width="100%" height="100%" fill="#0A0A0A" />
-        <rect x="8%" y="12%" width="35%" height="7" rx="3.5" fill="#fff" opacity=".9" />
-        <rect x="8%" y="24%" width="50%" height="4" rx="2" fill="#94A3B8" opacity=".35" />
-        <rect x="8%" y="40%" width="40%" height="22" rx="6" fill="#111" stroke="#1E1E2E" />
-        <rect x="52%" y="40%" width="40%" height="22" rx="6" fill="#111" stroke="#1E1E2E" />
-        <rect x="8%" y="68%" width="84%" height="22" rx="6" fill="#111" stroke="#1E1E2E" />
+        <rect width="100%" height="100%" fill="#0a0a12" />
+        <circle cx="85%" cy="18%" r="55" fill="#7C3AED" opacity=".15" />
+        <circle cx="12%" cy="75%" r="45" fill="#9d5fff" opacity=".1" />
+        <rect x="8%" y="12%" width="38%" height="8" rx="4" fill="#7C3AED" opacity=".9" />
+        <rect x="8%" y="26%" width="55%" height="10" rx="5" fill="#fff" opacity=".88" />
+        <rect x="8%" y="42%" width="42%" height="5" rx="2.5" fill="#94A3B8" opacity=".4" />
+        <rect x="8%" y="56%" width="32%" height="18" rx="9" fill="#7C3AED" opacity=".75" />
+        <rect x="8%" y="82%" width="38%" height="28" rx="8" fill="rgba(17,17,24,.9)" stroke="rgba(124,58,237,.25)" />
+        <rect x="50%" y="82%" width="38%" height="28" rx="8" fill="rgba(17,17,24,.9)" stroke="rgba(124,58,237,.2)" />
       </>
     ),
     dashboard: (
@@ -80,7 +92,7 @@ function CardPreview({ theme }) {
   };
 
   return (
-    <svg viewBox="0 0 400 220" className="fsc-card-preview-svg" preserveAspectRatio="xMidYMid slice">
+    <svg viewBox="0 0 400 220" className={className} preserveAspectRatio="xMidYMid slice">
       <defs>
         <linearGradient id="rom-bg" x1="0" y1="0" x2="400" y2="220">
           <stop offset="0%" stopColor="#1a0033" />
@@ -92,13 +104,97 @@ function CardPreview({ theme }) {
   );
 }
 
-function SourceCard({ project, onDownload, onPreview }) {
-  const diffClass = `fsc-diff fsc-diff-${project.difficulty.toLowerCase()}`;
+function CardThumbnail({ project, featured = false }) {
+  const src = getSourceThumbnail(project.id);
+  if (!src) return null;
+
   return (
-    <article className="fsc-card">
+    <div className={`fsc-thumb-wrap${featured ? ' fsc-thumb-wrap--featured' : ''}`}>
+      <img
+        src={src}
+        alt={`${project.title} preview`}
+        className={`fsc-card-thumb${featured ? ' fsc-feat-thumb' : ''}`}
+        loading="lazy"
+        decoding="async"
+      />
+      <div className="fsc-thumb-gradient" aria-hidden />
+    </div>
+  );
+}
+
+function FeaturedSourceCard({ project, onDownload, onPreview, variant = 'primary' }) {
+  const diffClass = `fsc-diff fsc-diff-${project.difficulty.toLowerCase()}`;
+  const isSecondary = variant === 'secondary';
+  const thumbnail = getSourceThumbnail(project.id);
+  return (
+    <section
+      className={`fsc-featured-section${isSecondary ? ' fsc-featured-section-secondary' : ''}`}
+      aria-label={isSecondary ? 'Spotlight project' : 'Featured project'}
+    >
+      <p className="fsc-featured-label">
+        <span className="fsc-featured-label-dot" aria-hidden />
+        {isSecondary ? 'Also Available — Premium Build' : 'Featured Project — Available Now'}
+      </p>
+      <article className={`fsc-featured-card fsc-featured-card-live${isSecondary ? ' fsc-featured-card-secondary' : ''}`}>
+        <div className="fsc-card-shine" aria-hidden />
+        <div className="fsc-featured-preview">
+          <div className="fsc-orb fsc-orb-1" aria-hidden />
+          <div className="fsc-orb fsc-orb-2" aria-hidden />
+          <div className="fsc-orb fsc-orb-3" aria-hidden />
+          {thumbnail ? (
+            <CardThumbnail project={project} featured />
+          ) : (
+            <CardPreview theme={project.previewTheme} className="fsc-card-preview-svg fsc-feat-svg" />
+          )}
+          <span className="fsc-new-badge">✨ Live Now</span>
+          <span className={diffClass}>{project.difficulty}</span>
+        </div>
+        <div className="fsc-featured-body">
+          <span className="fsc-feat-tag">{project.tag}</span>
+          <h2 className="fsc-feat-title">{project.title}</h2>
+          <p className="fsc-feat-desc">{project.description}</p>
+          <div className="fsc-tech-stack">
+            {project.techStack.map((t) => (
+              <span key={t} className="fsc-tech-pill">{t}</span>
+            ))}
+          </div>
+          <div className="fsc-feat-btns">
+            <button type="button" className="fsc-btn-preview" onClick={() => onPreview(project)}>
+              <span className="fsc-btn-icon">👁</span> Live Preview
+            </button>
+            <button type="button" className="fsc-btn-download" onClick={() => onDownload(project)}>
+              <span className="fsc-btn-icon">⬇</span> Download Source Code
+            </button>
+          </div>
+        </div>
+      </article>
+    </section>
+  );
+}
+
+function SourceCard({ project, onDownload, onPreview }) {
+  const live = projectIsLive(project);
+  const diffClass = `fsc-diff fsc-diff-${project.difficulty.toLowerCase()}`;
+
+  return (
+    <article
+      className={`fsc-card${live ? '' : ' fsc-card-coming-soon'}`}
+      title={live ? undefined : 'Project will be available soon'}
+      aria-disabled={!live}
+    >
+      {!live && (
+        <div className="fsc-coming-soon-overlay" aria-hidden>
+          <span>Project will be available soon</span>
+        </div>
+      )}
       <div className="fsc-card-preview">
-        <CardPreview theme={project.previewTheme} />
-        {project.isNew && <span className="fsc-card-badge">New</span>}
+        {getSourceThumbnail(project.id) ? (
+          <CardThumbnail project={project} />
+        ) : (
+          <CardPreview theme={project.previewTheme} />
+        )}
+        {live && project.isNew && <span className="fsc-card-badge">New</span>}
+        {!live && <span className="fsc-coming-soon-badge">Coming Soon</span>}
         <span className={diffClass}>{project.difficulty}</span>
       </div>
       <div className="fsc-card-body">
@@ -111,10 +207,20 @@ function SourceCard({ project, onDownload, onPreview }) {
           ))}
         </div>
         <div className="fsc-card-actions">
-          <button type="button" className="fsc-btn-preview" onClick={() => onPreview(project)}>
+          <button
+            type="button"
+            className="fsc-btn-preview"
+            disabled={!live}
+            onClick={() => live && onPreview(project)}
+          >
             <span>👁</span> Preview
           </button>
-          <button type="button" className="fsc-btn-download" onClick={() => onDownload(project)}>
+          <button
+            type="button"
+            className="fsc-btn-download"
+            disabled={!live}
+            onClick={() => live && onDownload(project)}
+          >
             <span>⬇</span> Download
           </button>
         </div>
@@ -381,6 +487,16 @@ export default function FreeSourceCodePage() {
   const [reviewProject, setReviewProject] = useState(null);
   const { toasts, addToast, removeToast } = useToast();
 
+  const featuredProject = useMemo(
+    () => SOURCE_PROJECTS.find((p) => p.id === FEATURED_SOURCE_ID),
+    [],
+  );
+
+  const secondaryFeatured = useMemo(
+    () => SOURCE_PROJECTS.find((p) => p.id === SECONDARY_FEATURED_ID),
+    [],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return SOURCE_PROJECTS.filter((p) => {
@@ -394,6 +510,13 @@ export default function FreeSourceCodePage() {
       return matchDiff && matchTech && matchSearch;
     });
   }, [search, difficulty, tech]);
+
+  const gridProjects = useMemo(
+    () => filtered.filter((p) => !SPOTLIGHT_SOURCE_IDS.includes(p.id)),
+    [filtered],
+  );
+
+  const showFeatured = Boolean(featuredProject);
 
   const completeDownload = (project) => {
     setReviewProject(null);
@@ -415,11 +538,8 @@ export default function FreeSourceCodePage() {
   };
 
   const handlePreview = (project) => {
-    if (project.previewUrl && project.previewUrl !== '#') {
-      window.open(project.previewUrl, '_blank', 'noopener,noreferrer');
-    } else {
-      addToast('Live preview coming soon!', 'error');
-    }
+    if (!projectIsLive(project)) return;
+    window.open(project.previewUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -472,9 +592,35 @@ export default function FreeSourceCodePage() {
           </div>
         </section>
 
-        <p className="fsc-results-count">
-          {filtered.length} project{filtered.length !== 1 ? 's' : ''} found
-        </p>
+        {showFeatured && featuredProject && (
+          <FeaturedSourceCard
+            project={featuredProject}
+            onDownload={handleDownload}
+            onPreview={handlePreview}
+            variant="primary"
+          />
+        )}
+
+        {secondaryFeatured && projectIsLive(secondaryFeatured) && (
+          <FeaturedSourceCard
+            project={secondaryFeatured}
+            onDownload={handleDownload}
+            onPreview={handlePreview}
+            variant="secondary"
+          />
+        )}
+
+        {gridProjects.length > 0 && (
+          <>
+            <h2 className="fsc-grid-heading">
+              {showFeatured ? 'More' : 'All'} <span className="accent">Projects</span>
+            </h2>
+            <p className="fsc-results-count">
+              {gridProjects.length} project{gridProjects.length !== 1 ? 's' : ''}
+              {gridProjects.some((p) => !projectIsLive(p)) ? ' · some coming soon' : ''}
+            </p>
+          </>
+        )}
 
         {filtered.length === 0 ? (
           <div className="fsc-empty">
@@ -487,9 +633,9 @@ export default function FreeSourceCodePage() {
               Clear filters
             </button>
           </div>
-        ) : (
+        ) : gridProjects.length === 0 ? null : (
           <div className="fsc-grid">
-            {filtered.map((p) => (
+            {gridProjects.map((p) => (
               <SourceCard
                 key={p.id}
                 project={p}
