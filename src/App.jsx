@@ -112,8 +112,11 @@ function Navbar() {
             Free Source Code
           </NavLink>
         </li>
+        <li className="nav-mobile-cta">
+          <a href={homeHash('contact')} className="nav-cta nav-cta-mobile" onClick={() => setMenuOpen(false)}>Get in Touch</a>
+        </li>
       </ul>
-      <a href={homeHash('contact')} className="nav-cta" onClick={() => setMenuOpen(false)}>Get in Touch</a>
+      <a href={homeHash('contact')} className="nav-cta nav-cta-desktop" onClick={() => setMenuOpen(false)}>Get in Touch</a>
       <button className="nav-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
         <span /><span /><span />
       </button>
