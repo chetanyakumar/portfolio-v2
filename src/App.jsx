@@ -697,15 +697,20 @@ function HomePage() {
 function PageLoader({ onComplete }) {
   const [fadeOut, setFadeOut] = useState(false);
   useEffect(() => {
-    const t1 = setTimeout(() => setFadeOut(true), 1500);
-    const t2 = setTimeout(() => onComplete(), 1800);
+    const t1 = setTimeout(() => setFadeOut(true), 2000);
+    const t2 = setTimeout(() => onComplete(), 2400);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [onComplete]);
   return (
     <div className={`page-loader${fadeOut ? ' page-loader--fade' : ''}`}>
+      <div className="loader-ambient" />
+      <div className="loader-ring-outer" />
       <div className="loader-ring" />
       <img src={pixelnestIcon} alt="Loading" className="loader-icon" draggable="false" />
-      <span className="loader-text">PIXELNEST</span>
+      <span className="loader-particle loader-p1" />
+      <span className="loader-particle loader-p2" />
+      <span className="loader-particle loader-p3" />
+      <span className="loader-particle loader-p4" />
     </div>
   );
 }
