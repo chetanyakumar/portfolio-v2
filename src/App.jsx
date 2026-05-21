@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { BrowserRouter, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
 import './styles.css';
 import FreeSourceCodePage from './pages/FreeSourceCodePage.jsx';
+import pixelnestIcon from './assets/logo.png';
+import nestHero from './assets/pixelnest-full-logo.png';
 import WhatsAppFloat from './components/WhatsAppFloat.jsx';
 import {
   ScrollingTrustBar,
@@ -48,26 +50,27 @@ function useCounter(target, duration = 2000, active) {
 }
 
 /* ── Pixel P Icon ── */
-function PixelP({ size = 36 }) {
-  const px = Math.round(size / 9);
+function PixelP({ size = 'default' }) {
+  const cls = size === 'small' ? 'pixel-p-icon pixel-p-icon--sm' : 'pixel-p-icon';
   return (
-    <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="pixel-p-icon">
-      <rect width="36" height="36" rx="8" fill="#7C3AED"/>
-      <rect x="8" y="6" width={px*2} height={px*6} rx="1" fill="#fff"/>
-      <rect x="16" y="6" width={px*3} height={px*2} rx="1" fill="#fff"/>
-      <rect x="22" y="10" width={px*2} height={px*2} rx="1" fill="#fff"/>
-      <rect x="16" y="14" width={px*3} height={px*2} rx="1" fill="#fff"/>
-    </svg>
+    <img
+      src={pixelnestIcon}
+      alt="Pixelnest"
+      className={cls}
+      draggable="false"
+    />
   );
 }
 
 /* ── Logo Component ── */
 function Logo({ size = 'default' }) {
-  const s = size === 'small' ? 28 : 36;
   return (
     <Link to="/" className={`nav-logo${size === 'small' ? ' nav-logo-sm' : ''}`}>
-      <PixelP size={s} />
-      <span className="nav-logo-text">PIXELNEST</span>
+      <PixelP size={size} />
+      <div className="nav-logo-textblock">
+        <span className="nav-logo-text">PIXELNEST</span>
+        {size !== 'small' && <span className="nav-logo-subtitle">WEB & DESIGN STUDIO</span>}
+      </div>
     </Link>
   );
 }
@@ -110,7 +113,7 @@ function Navbar() {
           </NavLink>
         </li>
       </ul>
-      <a href={homeHash('contact')} className="nav-cta" onClick={() => setMenuOpen(false)}>Contact Us</a>
+      <a href={homeHash('contact')} className="nav-cta" onClick={() => setMenuOpen(false)}>Get in Touch</a>
       <button className="nav-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
         <span /><span /><span />
       </button>
@@ -118,69 +121,138 @@ function Navbar() {
   );
 }
 
-/* ── 2. Hero ── */
-function Hero() {
+/* ── Background Particles ── */
+function HeroParticles() {
+  const particles = useMemo(() => {
+    return Array.from({ length: 60 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: 1.5 + Math.random() * 2.5,
+      delay: Math.random() * 8,
+      duration: 4 + Math.random() * 6,
+      opacity: 0.15 + Math.random() * 0.5,
+    }));
+  }, []);
+
   return (
-    <section className="hero" id="home">
-      <div className="hero-glow" />
-      <div className="hero-left">
-        <h1>We Design Websites That Build <span className="accent">Businesses.</span></h1>
-        <p className="hero-subtitle">Modern. Strategic. <span className="accent">Results-Driven.</span></p>
-        <div className="hero-divider" />
-        <p className="hero-body">
-          At PIXELNEST, we create high-performing websites that help brands look professional,
-          build trust, and convert visitors into customers.
-        </p>
-        <div className="hero-scroll" onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}>
-          Swipe to see how we do it <span className="arrow">↓</span>
-        </div>
-      </div>
-      <div className="hero-right">
-        <HeroMockup />
-      </div>
-    </section>
+    <div className="hero-particles" aria-hidden="true">
+      {particles.map((p) => (
+        <span
+          key={p.id}
+          className="hero-particle"
+          style={{
+            left: p.left,
+            top: p.top,
+            width: p.size,
+            height: p.size,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
+            opacity: p.opacity,
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
-/* Hero Mockup — SVG laptop + phone */
-function HeroMockup() {
+/* ── 3D Cinematic Logo Centerpiece ── */
+function HeroOrb() {
   return (
-    <svg viewBox="0 0 520 380" className="hero-mockup" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Laptop */}
-      <rect x="40" y="30" width="340" height="220" rx="12" fill="#111" stroke="#1E1E2E" strokeWidth="2"/>
-      <rect x="55" y="45" width="310" height="190" rx="4" fill="#0A0A0A"/>
-      {/* Screen content */}
-      <rect x="70" y="60" width="60" height="8" rx="4" fill="#7C3AED"/>
-      <rect x="70" y="78" width="200" height="6" rx="3" fill="#fff" opacity=".8"/>
-      <rect x="70" y="92" width="160" height="4" rx="2" fill="#94A3B8" opacity=".5"/>
-      <rect x="70" y="104" width="180" height="4" rx="2" fill="#94A3B8" opacity=".3"/>
-      <rect x="70" y="124" width="80" height="24" rx="12" fill="#7C3AED"/>
-      <rect x="160" y="124" width="70" height="24" rx="12" fill="none" stroke="#7C3AED" strokeWidth="1" opacity=".5"/>
-      <rect x="70" y="168" width="90" height="50" rx="6" fill="#1E1E2E"/>
-      <rect x="170" y="168" width="90" height="50" rx="6" fill="#1E1E2E"/>
-      <rect x="270" y="168" width="90" height="50" rx="6" fill="#1E1E2E"/>
-      {/* Laptop base */}
-      <path d="M20 250 L40 250 L40 248 C40 246 42 244 44 244 L376 244 C378 244 380 246 380 248 L380 250 L400 250 C400 260 390 268 380 268 L40 268 C30 268 20 260 20 250Z" fill="#111" stroke="#1E1E2E" strokeWidth="1.5"/>
-      {/* Phone */}
-      <rect x="400" y="100" width="100" height="180" rx="14" fill="#111" stroke="#1E1E2E" strokeWidth="2"/>
-      <rect x="410" y="115" width="80" height="150" rx="4" fill="#0A0A0A"/>
-      {/* Phone content */}
-      <rect x="420" y="128" width="40" height="5" rx="2.5" fill="#7C3AED"/>
-      <rect x="420" y="140" width="60" height="4" rx="2" fill="#fff" opacity=".7"/>
-      <rect x="420" y="150" width="50" height="3" rx="1.5" fill="#94A3B8" opacity=".4"/>
-      <rect x="420" y="166" width="50" height="16" rx="8" fill="#7C3AED"/>
-      <rect x="420" y="194" width="26" height="26" rx="4" fill="#1E1E2E"/>
-      <rect x="452" y="194" width="26" height="26" rx="4" fill="#1E1E2E"/>
-      <rect x="420" y="226" width="26" height="26" rx="4" fill="#1E1E2E"/>
-      <rect x="452" y="226" width="26" height="26" rx="4" fill="#1E1E2E"/>
-      {/* Phone notch */}
-      <rect x="435" y="106" width="30" height="5" rx="2.5" fill="#1E1E2E"/>
-      {/* Glow */}
-      <circle cx="260" cy="190" r="160" fill="url(#glow)" opacity=".15"/>
-      <defs>
-        <radialGradient id="glow"><stop stopColor="#7C3AED"/><stop offset="1" stopColor="transparent"/></radialGradient>
-      </defs>
-    </svg>
+    <div className="hero-brand-visual">
+      <div className="hero-brand-ambient" />
+      <div className="hero-brand-ambient-inner" />
+      <div className="hero-brand-orb-wrap">
+        <img
+          src={pixelnestIcon}
+          alt="PixelNest"
+          className="hero-brand-icon"
+          draggable="false"
+        />
+      </div>
+      <span className="orb-spark orb-spark-1" />
+      <span className="orb-spark orb-spark-2" />
+      <span className="orb-spark orb-spark-3" />
+      <span className="orb-spark orb-spark-4" />
+      <span className="orb-spark orb-spark-5" />
+      <span className="orb-spark orb-spark-6" />
+      <span className="orb-spark orb-spark-7" />
+    </div>
+  );
+}
+
+/* ── 2. Hero Section ── */
+function Hero() {
+  return (
+    <section className="hero" id="home">
+      {/* Background effects */}
+      <div className="hero-bg-grid" aria-hidden="true" />
+      <HeroParticles />
+      <div className="hero-glow" />
+
+      {/* Left: 3D Orb Illustration */}
+      <div className="hero-left">
+        <HeroOrb />
+      </div>
+
+      {/* Right: Text Content */}
+      <div className="hero-right">
+        <span className="hero-eyebrow">✦ PixelNest Web & Design Studio</span>
+        <h1 className="hero-headline">
+          Crafting Digital<br />
+          <span className="hero-headline-accent">Experiences</span>
+        </h1>
+        <p className="hero-subtitle">
+          Elevate your brand with custom web design, development,
+          and digital solutions that captivate and convert. We build
+          premium websites that turn visitors into loyal customers.
+        </p>
+        <div className="hero-cta-group">
+          <a href="#contact" className="hero-cta-filled">Get Started</a>
+          <a href="#work" className="hero-cta-outlined">View Portfolio</a>
+        </div>
+      </div>
+
+      {/* Bottom: Preview Cards */}
+      <div className="hero-cards-wrapper">
+        <div className="hero-cards">
+          <div className="hero-card">
+            <div className="hero-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <h3>Services</h3>
+            <p>Custom web design, development & digital strategies built for growth.</p>
+          </div>
+          <div className="hero-card">
+            <div className="hero-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+            </div>
+            <h3>Portfolio</h3>
+            <p>Explore premium projects showcasing innovative, results-driven designs.</p>
+          </div>
+          <div className="hero-card">
+            <div className="hero-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                <path d="M2 2l7.586 7.586"/>
+                <circle cx="11" cy="11" r="2"/>
+              </svg>
+            </div>
+            <h3>Design Studio</h3>
+            <p>Where creativity meets precision — pixel-perfect craftsmanship guaranteed.</p>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -244,19 +316,19 @@ function BeforeAfter() {
 function BeforeMockup() {
   return (
     <svg viewBox="0 0 320 200" style={{ width: '100%', borderRadius: 10, marginBottom: 14 }} fill="none">
-      <rect width="320" height="200" rx="8" fill="#F1F5F9"/>
-      <rect x="0" y="0" width="320" height="32" fill="#E2E8F0"/>
+      <rect width="320" height="200" rx="8" fill="#1a1a28"/>
+      <rect x="0" y="0" width="320" height="32" fill="#151520"/>
       <circle cx="16" cy="16" r="5" fill="#EF4444" opacity=".6"/>
       <circle cx="30" cy="16" r="5" fill="#F59E0B" opacity=".6"/>
       <circle cx="44" cy="16" r="5" fill="#22C55E" opacity=".6"/>
-      <rect x="16" y="44" width="180" height="10" rx="3" fill="#CBD5E1"/>
-      <rect x="16" y="62" width="140" height="6" rx="3" fill="#E2E8F0"/>
-      <rect x="16" y="74" width="160" height="6" rx="3" fill="#E2E8F0"/>
-      <rect x="16" y="92" width="70" height="20" rx="4" fill="#CBD5E1"/>
-      <rect x="96" y="92" width="70" height="20" rx="4" fill="#CBD5E1"/>
-      <rect x="16" y="124" width="90" height="60" rx="4" fill="#E2E8F0"/>
-      <rect x="116" y="124" width="90" height="60" rx="4" fill="#E2E8F0"/>
-      <rect x="216" y="124" width="90" height="60" rx="4" fill="#E2E8F0"/>
+      <rect x="16" y="44" width="180" height="10" rx="3" fill="#2a2a3a"/>
+      <rect x="16" y="62" width="140" height="6" rx="3" fill="#222230"/>
+      <rect x="16" y="74" width="160" height="6" rx="3" fill="#222230"/>
+      <rect x="16" y="92" width="70" height="20" rx="4" fill="#2a2a3a"/>
+      <rect x="96" y="92" width="70" height="20" rx="4" fill="#2a2a3a"/>
+      <rect x="16" y="124" width="90" height="60" rx="4" fill="#222230"/>
+      <rect x="116" y="124" width="90" height="60" rx="4" fill="#222230"/>
+      <rect x="216" y="124" width="90" height="60" rx="4" fill="#222230"/>
     </svg>
   );
 }
@@ -264,18 +336,18 @@ function BeforeMockup() {
 function AfterMockup() {
   return (
     <svg viewBox="0 0 320 200" style={{ width: '100%', borderRadius: 10, marginBottom: 14 }} fill="none">
-      <rect width="320" height="200" rx="8" fill="#0A0A0A"/>
-      <rect x="0" y="0" width="320" height="28" fill="#111"/>
+      <rect width="320" height="200" rx="8" fill="#0A0A0F"/>
+      <rect x="0" y="0" width="320" height="28" fill="#0e0e18"/>
       <rect x="14" y="9" width="40" height="10" rx="3" fill="#7C3AED"/>
-      <rect x="220" y="9" width="30" height="10" rx="3" fill="#1E1E2E"/>
-      <rect x="256" y="9" width="30" height="10" rx="3" fill="#1E1E2E"/>
+      <rect x="220" y="9" width="30" height="10" rx="3" fill="#1a1a2e"/>
+      <rect x="256" y="9" width="30" height="10" rx="3" fill="#1a1a2e"/>
       <rect x="14" y="42" width="160" height="10" rx="4" fill="#fff" opacity=".9"/>
       <rect x="14" y="60" width="120" height="6" rx="3" fill="#94A3B8" opacity=".5"/>
       <rect x="14" y="72" width="140" height="6" rx="3" fill="#94A3B8" opacity=".3"/>
       <rect x="14" y="90" width="80" height="22" rx="11" fill="#7C3AED"/>
-      <rect x="14" y="128" width="90" height="56" rx="8" fill="#111" stroke="#1E1E2E" strokeWidth="1"/>
-      <rect x="112" y="128" width="90" height="56" rx="8" fill="#111" stroke="#1E1E2E" strokeWidth="1"/>
-      <rect x="210" y="128" width="90" height="56" rx="8" fill="#111" stroke="#1E1E2E" strokeWidth="1"/>
+      <rect x="14" y="128" width="90" height="56" rx="8" fill="#0e0e18" stroke="rgba(168,85,247,.2)" strokeWidth="1"/>
+      <rect x="112" y="128" width="90" height="56" rx="8" fill="#0e0e18" stroke="rgba(168,85,247,.2)" strokeWidth="1"/>
+      <rect x="210" y="128" width="90" height="56" rx="8" fill="#0e0e18" stroke="rgba(168,85,247,.2)" strokeWidth="1"/>
     </svg>
   );
 }
@@ -577,7 +649,7 @@ function Footer() {
     <footer className="footer">
       <div className="footer-left">
         <div className="footer-logo">
-          <PixelP size={28} />
+          <PixelP size="small" />
           <span>PIXELNEST</span>
         </div>
         <p className="footer-tagline">Designing Websites. Building Brands. Growing Businesses.</p>
@@ -621,9 +693,28 @@ function HomePage() {
     </>
   );
 }
+/* ── Page Loader ── */
+function PageLoader({ onComplete }) {
+  const [fadeOut, setFadeOut] = useState(false);
+  useEffect(() => {
+    const t1 = setTimeout(() => setFadeOut(true), 1500);
+    const t2 = setTimeout(() => onComplete(), 1800);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [onComplete]);
+  return (
+    <div className={`page-loader${fadeOut ? ' page-loader--fade' : ''}`}>
+      <div className="loader-ring" />
+      <img src={pixelnestIcon} alt="Loading" className="loader-icon" draggable="false" />
+      <span className="loader-text">PIXELNEST</span>
+    </div>
+  );
+}
 
 /* ── Main App ── */
 export default function App() {
+  const [loading, setLoading] = useState(true);
+  const done = useRef(() => setLoading(false));
+  if (loading) return <PageLoader onComplete={done.current} />;
   return (
     <BrowserRouter>
       <ScrollToHash />

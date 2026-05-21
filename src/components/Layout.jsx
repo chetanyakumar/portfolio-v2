@@ -1,26 +1,28 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { NAV_LINKS } from '../data.js';
+import pixelnestIcon from '../assets/logo.png';
 
-export function PixelP({ size = 36 }) {
-  const px = Math.round(size / 9);
+export function PixelP({ size = 'default' }) {
+  const cls = size === 'small' ? 'pixel-p-icon pixel-p-icon--sm' : 'pixel-p-icon';
   return (
-    <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="pixel-p-icon">
-      <rect width="36" height="36" rx="8" fill="#7C3AED" />
-      <rect x="8" y="6" width={px * 2} height={px * 6} rx="1" fill="#fff" />
-      <rect x="16" y="6" width={px * 3} height={px * 2} rx="1" fill="#fff" />
-      <rect x="22" y="10" width={px * 2} height={px * 2} rx="1" fill="#fff" />
-      <rect x="16" y="14" width={px * 3} height={px * 2} rx="1" fill="#fff" />
-    </svg>
+    <img
+      src={pixelnestIcon}
+      alt="Pixelnest"
+      className={cls}
+      draggable="false"
+    />
   );
 }
 
 export function Logo({ size = 'default' }) {
-  const s = size === 'small' ? 28 : 36;
   return (
     <Link to="/" className={`nav-logo${size === 'small' ? ' nav-logo-sm' : ''}`}>
-      <PixelP size={s} />
-      <span className="nav-logo-text">PIXELNEST</span>
+      <PixelP size={size} />
+      <div className="nav-logo-textblock">
+        <span className="nav-logo-text">PIXELNEST</span>
+        {size !== 'small' && <span className="nav-logo-subtitle">WEB & DESIGN STUDIO</span>}
+      </div>
     </Link>
   );
 }
@@ -80,7 +82,7 @@ export function Footer() {
     <footer className="footer">
       <div className="footer-left">
         <div className="footer-logo">
-          <PixelP size={28} />
+          <PixelP size="small" />
           <span>PIXELNEST</span>
         </div>
         <p className="footer-tagline">Designing Websites. Building Brands. Growing Businesses.</p>
